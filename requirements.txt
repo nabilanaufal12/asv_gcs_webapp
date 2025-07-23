@@ -1,0 +1,8 @@
+Flask
+Flask-Login
+Flask-SocketIO
+Flask-SQLAlchemy
+paho-mqtt
+python-dotenv
+eventlet
+opencv-python

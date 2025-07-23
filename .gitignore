@@ -1,0 +1,33 @@
+# Python Virtual Environment
+# Direktori ini berisi semua library yang diinstall dan spesifik untuk mesin Anda.
+# Dapat dibuat ulang menggunakan file requirements.txt
+/venv/
+
+# Python Cache
+# File bytecode yang dibuat oleh Python untuk mempercepat eksekusi.
+# Dibuat secara otomatis.
+__pycache__/
+*.pyc
+
+# Database
+# File database lokal Anda. Seharusnya tidak dimasukkan ke version control.
+app.db
+
+# Environment Variables
+# File ini berisi variabel sensitif seperti API keys, password database, dll.
+# SANGAT PENTING untuk tidak memasukkan file ini ke Git.
+.env
+
+# IDE / Editor specific files
+# Pengaturan spesifik untuk editor kode seperti VS Code atau PyCharm.
+.vscode/
+.idea/
+
+# Operating System files
+# File metadata yang dibuat oleh sistem operasi.
+.DS_Store
+Thumbs.db
+
+# Log files
+# File log yang dihasilkan oleh aplikasi Anda.
+*.log
