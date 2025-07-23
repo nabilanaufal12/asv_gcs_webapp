@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }} - ASV GCS</title>
+    <!-- CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto Mono", monospace;
+      }
+    </style>
+  </head>
+  <body class="bg-black text-white overflow-hidden">
+    <!-- Kontainer utama untuk video dan overlay -->
+    <div class="relative w-screen h-screen">
+      <!-- Video Stream sebagai latar belakang -->
+      <img
+        id="video-stream"
+        src=""
+        class="absolute top-0 left-0 w-full h-full object-cover"
+      />
+
+      <!-- Overlay untuk data telemetri -->
+      <div
+        class="absolute top-0 left-0 w-full h-full p-4 flex flex-col justify-between pointer-events-none"
+      >
+        <!-- Header: Status & Waktu -->
+        <div class="flex justify-between items-start text-lg">
+          <div
+            id="connection-status"
+            class="bg-black bg-opacity-50 p-2 rounded-lg flex items-center"
+          >
+            <span
+              id="connection-indicator-dot"
+              class="h-4 w-4 rounded-full bg-yellow-400 mr-3"
+            ></span>
+            <span id="connection-indicator-text">CONNECTING...</span>
+          </div>
+          <div
+            id="mission-status-display"
+            class="bg-black bg-opacity-50 p-2 rounded-lg"
+          >
+            MISSION: IDLE
+          </div>
+        </div>
+
+        <!-- Footer: Data Telemetri Utama -->
+        <div class="grid grid-cols-3 gap-4 text-2xl font-bold">
+          <div class="bg-black bg-opacity-50 p-3 rounded-lg text-center">
+            <p class="text-sm opacity-75">SPEED</p>
+            <p id="speed-display">0.0 <span class="text-lg">knots</span></p>
+          </div>
+          <div class="bg-black bg-opacity-50 p-3 rounded-lg text-center">
+            <p class="text-sm opacity-75">HEADING</p>
+            <p id="heading-display">0 <span class="text-lg">°</span></p>
+          </div>
+          <div class="bg-black bg-opacity-50 p-3 rounded-lg text-center">
+            <p class="text-sm opacity-75">BATTERY</p>
+            <p id="battery-display">0 <span class="text-lg">%</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <!-- Skrip Aplikasi untuk halaman monitor -->
+    <script src="{{ url_for('static', filename='js/monitor.js') }}"></script>
+  </body>
+</html>

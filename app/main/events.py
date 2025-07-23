@@ -135,10 +135,13 @@ def handle_connect(auth=None): # DIUBAH: Menerima argumen opsional
     
     log_activity(f"Pengguna '{current_user.username}' terhubung.", "success")
     
+    # Kirim data persisten dari database
     user_waypoints = [wp.to_dict() for wp in current_user.waypoints.order_by(Waypoint.order).all()]
     socketio.emit('update_waypoints', user_waypoints, room=request.sid)
     socketio.emit('update_pid_gains', current_user.get_pid_gains(), room=request.sid)
     socketio.emit('update_servo_limits', current_user.get_servo_limits(), room=request.sid)
+    
+    # Kirim data sementara dari state server
     socketio.emit('update_vehicle_mode', vehicle_mode, room=request.sid)
     socketio.emit('update_mission_status', mission_status, room=request.sid)
     socketio.emit('video_stream_status', {'active': video_stream_active}, room=request.sid)

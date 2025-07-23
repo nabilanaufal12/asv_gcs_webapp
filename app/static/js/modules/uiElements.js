@@ -26,6 +26,7 @@ export const elements = {
   modeSwitchBtn: document.getElementById("mode-switch-btn"),
   emergencyStopBtn: document.getElementById("emergency-stop-btn"),
   vehicleModeDisplay: document.getElementById("vehicle-mode-display"),
+  openMonitorBtn: document.getElementById("open-monitor-btn"), // DIUBAH: Tambah tombol monitor
 
   // Kontrol Manual & Navigasi
   manualControlPanel: document.getElementById("manual-control-panel"),

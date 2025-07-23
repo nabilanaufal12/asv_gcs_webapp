@@ -1,11 +1,12 @@
 import { elements } from "./uiElements.js";
 import { emitCommand } from "./socketHandler.js";
 
-// Ikon SVG untuk tombol toggle video
+// Ikon SVG untuk tombol toggle video, disimpan sebagai konstanta agar rapi
 const playIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
 const pauseIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
 
-// --- Fungsi Pembaruan UI ---
+// --- Kumpulan Fungsi untuk Memperbarui Tampilan (UI) ---
+
 export function updateTelemetryDisplay(data) {
   elements.coordsDisplay.textContent = `${data.lat.toFixed(
     6
@@ -36,13 +37,13 @@ export function updateVehicleMode(newMode) {
   if (newMode === "Auto") {
     elements.modeSwitchBtn.textContent = "Beralih ke Mode Manual";
     elements.vehicleModeDisplay.className =
-      "font-mono text-green-800 font-semibold px-2 py-1 bg-green-100 rounded-md";
+      "font-mono text-green-200 font-semibold px-2 py-1 bg-green-900/50 rounded-md";
     elements.manualControlPanel.classList.add("hidden");
     elements.navigationControlPanel.classList.remove("hidden");
   } else {
     elements.modeSwitchBtn.textContent = "Beralih ke Mode Auto";
     elements.vehicleModeDisplay.className =
-      "font-mono text-blue-800 font-semibold px-2 py-1 bg-blue-100 rounded-md";
+      "font-mono text-blue-200 font-semibold px-2 py-1 bg-blue-900/50 rounded-md";
     elements.manualControlPanel.classList.remove("hidden");
     elements.navigationControlPanel.classList.add("hidden");
   }
@@ -58,8 +59,8 @@ export function updateMissionStatus(newStatus) {
       elements.missionStartPauseBtn.className =
         "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md text-sm";
       elements.missionStatusDisplay.classList.add(
-        "bg-slate-200",
-        "text-slate-800"
+        "bg-slate-600/50",
+        "text-slate-200"
       );
       break;
     case "Running":
@@ -67,8 +68,8 @@ export function updateMissionStatus(newStatus) {
       elements.missionStartPauseBtn.className =
         "w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md text-sm";
       elements.missionStatusDisplay.classList.add(
-        "bg-green-100",
-        "text-green-800"
+        "bg-green-900/50",
+        "text-green-200"
       );
       break;
     case "Paused":
@@ -76,8 +77,8 @@ export function updateMissionStatus(newStatus) {
       elements.missionStartPauseBtn.className =
         "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md text-sm";
       elements.missionStatusDisplay.classList.add(
-        "bg-yellow-100",
-        "text-yellow-800"
+        "bg-yellow-900/50",
+        "text-yellow-200"
       );
       break;
   }
@@ -109,12 +110,12 @@ export function updateVideoStreamStatus(status) {
 
 export function addLogEntry(log) {
   const li = document.createElement("li");
-  let colorClass = "text-slate-500";
-  if (log.level === "success") colorClass = "text-green-600";
-  if (log.level === "warning") colorClass = "text-yellow-600";
-  if (log.level === "error") colorClass = "text-red-600";
+  let colorClass = "text-slate-400";
+  if (log.level === "success") colorClass = "text-green-400";
+  if (log.level === "warning") colorClass = "text-yellow-400";
+  if (log.level === "error") colorClass = "text-red-400";
   li.className = colorClass;
-  li.innerHTML = `<span class="text-slate-400">${log.timestamp}</span> &gt; ${log.message}`;
+  li.innerHTML = `<span class="text-slate-500">${log.timestamp}</span> &gt; ${log.message}`;
   elements.activityLogList.appendChild(li);
   elements.activityLogList.parentElement.scrollTop =
     elements.activityLogList.parentElement.scrollHeight;
@@ -144,8 +145,9 @@ export function showNotification(data) {
   }).showToast();
 }
 
-// --- Inisialisasi Event Listeners ---
+// --- Fungsi Utama untuk Menginisialisasi Semua Event Listener ---
 export function initEventListeners() {
+  // Waypoint
   elements.waypointForm.addEventListener("submit", (e) => {
     e.preventDefault();
     if (elements.latInput.value && elements.lonInput.value) {
@@ -158,7 +160,6 @@ export function initEventListeners() {
     }
   });
 
-  // Menambahkan event listener ke daftar waypoint untuk tombol hapus
   elements.waypointListElement.addEventListener("click", (e) => {
     if (e.target && e.target.classList.contains("delete-wp-btn")) {
       const index = parseInt(e.target.getAttribute("data-index"));
@@ -166,6 +167,10 @@ export function initEventListeners() {
     }
   });
 
+  // Kontrol Kendaraan & Navigasi
+  elements.openMonitorBtn.addEventListener("click", () =>
+    window.open("/monitor", "_blank")
+  );
   elements.modeSwitchBtn.addEventListener("click", () =>
     emitCommand("set_vehicle_mode")
   );
@@ -198,6 +203,8 @@ export function initEventListeners() {
   elements.autoSpeedSlider.addEventListener("change", function () {
     emitCommand("set_auto_speed", { speed: this.value });
   });
+
+  // Pengaturan
   elements.pidSaveBtn.addEventListener("click", () =>
     emitCommand("set_pid_gains", {
       kp: elements.kpInput.value,
@@ -211,6 +218,8 @@ export function initEventListeners() {
       max: elements.servoMaxInput.value,
     })
   );
+
+  // Kontrol Tampilan Pusat
   elements.snapshotBtn.addEventListener("click", () =>
     emitCommand("take_snapshot")
   );
@@ -220,9 +229,9 @@ export function initEventListeners() {
 
   function switchTab(activeTab, inactiveTab, contentToShow, contentToHide) {
     activeTab.className =
-      "tab-btn px-3 py-2 font-medium text-sm rounded-md text-white bg-indigo-600";
+      "tab-btn px-3 py-2 font-medium text-sm rounded-md text-slate-900 bg-amber-400";
     inactiveTab.className =
-      "tab-btn px-3 py-2 font-medium text-sm rounded-md text-slate-500 hover:bg-slate-100";
+      "tab-btn px-3 py-2 font-medium text-sm rounded-md text-slate-300 hover:bg-slate-700";
     contentToShow.classList.remove("hidden");
     contentToHide.classList.add("hidden");
     elements.videoControls.classList.toggle(

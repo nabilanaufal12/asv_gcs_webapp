@@ -1,0 +1,41 @@
+/*
+ * File ini mendefinisikan tema visual untuk GCS.
+ * Dengan menggunakan variabel, kita bisa dengan mudah mengubah seluruh
+ * tampilan aplikasi hanya dengan mengedit palet warna di bawah ini.
+ */
+
+:root {
+  /* Palet Warna Tema "Biru Langit" (Soft Blue) */
+  --bg-main: #f0f9ff; /* sky-50 */
+  --bg-panel: #ffffff;
+  --bg-panel-secondary: #f8fafc; /* slate-50 */
+  --bg-input: #ffffff;
+  --bg-button-primary: #3b82f6; /* blue-600 */
+  --bg-button-primary-hover: #2563eb; /* blue-700 */
+  --bg-tab-active: var(--bg-button-primary);
+  --bg-tab-inactive-hover: #eff6ff; /* blue-50 */
+
+  --text-header: #0f172a; /* slate-900 */
+  --text-primary: #1e293b; /* slate-800 */
+  --text-secondary: #475569; /* slate-600 */
+  --text-light: #ffffff;
+  --text-accent: var(--bg-button-primary);
+
+  --border-color: #e2e8f0; /* slate-200 */
+  --border-color-input: #cbd5e1; /* slate-300 */
+
+  --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Gaya kustom tambahan */
+.leaflet-container {
+  border-radius: 0.5rem; /* Menambahkan sudut membulat pada peta */
+}
+
+/* Mengubah warna default dari range slider */
+input[type="range"]::-webkit-slider-thumb {
+  background-color: var(--bg-button-primary);
+}
+input[type="range"]::-moz-range-thumb {
+  background-color: var(--bg-button-primary);
+}
