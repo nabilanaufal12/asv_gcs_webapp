@@ -22,13 +22,15 @@ export const elements = {
   lonInput: document.getElementById("lon-input"),
   waypointListElement: document.getElementById("waypoint-list"),
 
-  // Kontrol Kendaraan
+  // Kontrol Kendaraan & Navigasi
   modeSwitchBtn: document.getElementById("mode-switch-btn"),
   emergencyStopBtn: document.getElementById("emergency-stop-btn"),
   vehicleModeDisplay: document.getElementById("vehicle-mode-display"),
-  openMonitorBtn: document.getElementById("open-monitor-btn"), // DIUBAH: Tambah tombol monitor
+  openMonitorBtn: document.getElementById("open-monitor-btn"),
+  sidebarToggleBtn: document.getElementById("sidebar-toggle-btn"),
+  leftSidebar: document.getElementById("left-sidebar"),
 
-  // Kontrol Manual & Navigasi
+  // Kontrol Manual
   manualControlPanel: document.getElementById("manual-control-panel"),
   navigationControlPanel: document.getElementById("navigation-control-panel"),
   manualControlBtns: document.querySelectorAll(".manual-control-btn"),

@@ -36,7 +36,6 @@ export function updateVehicleMode(newMode) {
   elements.vehicleModeDisplay.textContent = newMode;
   if (newMode === "Auto") {
     elements.modeSwitchBtn.textContent = "Beralih ke Mode Manual";
-    // Menggunakan classList untuk menghindari penimpaan kelas
     elements.vehicleModeDisplay.classList.remove(
       "text-blue-800",
       "bg-blue-100"
@@ -58,7 +57,6 @@ export function updateVehicleMode(newMode) {
 
 export function updateMissionStatus(newStatus) {
   elements.missionStatusDisplay.textContent = newStatus;
-  // Reset semua kelas warna terlebih dahulu
   elements.missionStatusDisplay.classList.remove(
     "bg-slate-200",
     "text-slate-800",
@@ -194,8 +192,10 @@ export function initEventListeners() {
   });
 
   elements.waypointListElement.addEventListener("click", (e) => {
-    if (e.target && e.target.classList.contains("delete-wp-btn")) {
-      const index = parseInt(e.target.getAttribute("data-index"));
+    if (e.target && e.target.closest(".delete-wp-btn")) {
+      const index = parseInt(
+        e.target.closest(".delete-wp-btn").getAttribute("data-index")
+      );
       emitCommand("delete_waypoint", index);
     }
   });
@@ -260,8 +260,20 @@ export function initEventListeners() {
     emitCommand("toggle_video_stream")
   );
 
+  // DIUBAH: Menambahkan event listener untuk tombol hamburger
+  elements.sidebarToggleBtn.addEventListener("click", () => {
+    elements.leftSidebar.classList.toggle("w-80");
+    elements.leftSidebar.classList.toggle("w-0");
+    elements.leftSidebar.classList.toggle("p-4");
+    elements.leftSidebar.classList.toggle("p-0");
+
+    // Memberi waktu agar transisi selesai sebelum me-resize peta
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 300);
+  });
+
   function switchTab(activeTab, inactiveTab) {
-    // Menggunakan classList untuk mengelola gaya tab
     activeTab.classList.remove("text-slate-500", "hover:bg-blue-50");
     activeTab.classList.add("text-white", "bg-blue-600");
 
@@ -272,7 +284,7 @@ export function initEventListeners() {
       elements.contentMap.classList.remove("hidden");
       elements.contentVideo.classList.add("hidden");
       elements.videoControls.classList.add("hidden");
-      window.dispatchEvent(new Event("resize")); // Penting untuk render peta
+      window.dispatchEvent(new Event("resize"));
     } else {
       elements.contentMap.classList.add("hidden");
       elements.contentVideo.classList.remove("hidden");
