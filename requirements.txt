@@ -1,8 +1,10 @@
 Flask
 Flask-Login
 Flask-SocketIO
-Flask-SQLAlchemy
-paho-mqtt
 python-dotenv
-eventlet
+Flask-SQLAlchemy
+Flask-Migrate
+paho-mqtt
 opencv-python
+numpy
+eventlet  # <-- Tambahkan baris ini
