@@ -19,7 +19,7 @@ MQTT_COMMAND_TOPIC = "asv/commands"
 # --- State Server ---
 vehicle_mode = "Manual"
 mission_status = "Idle"
-video_stream_active = True
+video_stream_active = False # DIUBAH: Kamera mati saat awal
 video_task = None
 pid_graph_task = None
 
@@ -56,14 +56,13 @@ except Exception as e:
 
 # --- Fungsi Background Tasks ---
 def stream_video():
-    """Menangkap video dari webcam, menggambar overlay, dan menyiarkannya."""
     global video_task
     print("Memulai video stream dengan overlay...")
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Tidak bisa membuka kamera.")
         log_activity("Gagal membuka kamera.", "error")
-        video_task = None # Reset task jika gagal
+        video_task = None
         return
         
     frame_count = 0
@@ -75,13 +74,14 @@ def stream_video():
         if not success: break
         
         h, w, _ = frame.shape
-        # ... (Logika menggambar overlay tidak berubah) ...
-        if frame_count % 30 == 0: 
+        if frame_count % 30 == 0:
             box_x = random.randint(0, w - box_w)
             box_y = random.randint(int(h/4), h - box_h - 60)
             midpoint_x = box_x + box_w // 2
+        
         cv2.rectangle(frame, (box_x, box_y), (box_x + box_w, box_y + box_h), (0, 255, 0), 2)
         cv2.putText(frame, 'Green Buoy', (box_x, box_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        
         detection_info = {
             "label": "green_buoy",
             "confidence": round(random.uniform(0.85, 0.99), 2),
@@ -92,6 +92,7 @@ def stream_video():
         socketio.emit('update_detection_info', detection_info)
         if frame_count % 60 == 0:
             log_activity(f"Deteksi: {detection_info['label']} (Conf: {detection_info['confidence']})")
+
         scale_y = h - 20
         cv2.line(frame, (20, scale_y), (w - 20, scale_y), (255, 255, 255), 2)
         for i in range(0, 181, 45):
@@ -99,6 +100,7 @@ def stream_video():
             x_pos = int(20 + (w - 40) * (angle / 180.0))
             cv2.line(frame, (x_pos, scale_y - 10), (x_pos, scale_y), (255, 255, 255), 2)
             cv2.putText(frame, str(angle), (x_pos - 10, scale_y - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        
         midpoint_angle = (midpoint_x / w) * 180.0
         indicator_x = int(20 + (w - 40) * (midpoint_angle / 180.0))
         pts = np.array([[indicator_x, scale_y - 5], [indicator_x - 5, scale_y - 10], [indicator_x + 5, scale_y - 10]], np.int32)
@@ -114,10 +116,9 @@ def stream_video():
     cap.release()
     socketio.emit('video_stream_status', {'active': False})
     print("Video stream dihentikan.")
-    video_task = None # DIUBAH: Reset variabel task saat loop selesai
+    video_task = None
 
 def stream_pid_data():
-    # ... (Kode PID tidak berubah) ...
     print("Memulai stream data grafik PID...")
     setpoint = 100
     actual = 90
@@ -129,24 +130,20 @@ def stream_pid_data():
 
 # --- Event Handlers (Socket.IO) ---
 @socketio.on('connect')
-def handle_connect(auth=None): # DIUBAH: Menerima argumen opsional
+def handle_connect(auth=None):
     global video_task, pid_graph_task
     if not current_user.is_authenticated: return
     
     log_activity(f"Pengguna '{current_user.username}' terhubung.", "success")
     
-    # Kirim data persisten dari database
     user_waypoints = [wp.to_dict() for wp in current_user.waypoints.order_by(Waypoint.order).all()]
     socketio.emit('update_waypoints', user_waypoints, room=request.sid)
     socketio.emit('update_pid_gains', current_user.get_pid_gains(), room=request.sid)
     socketio.emit('update_servo_limits', current_user.get_servo_limits(), room=request.sid)
-    
-    # Kirim data sementara dari state server
     socketio.emit('update_vehicle_mode', vehicle_mode, room=request.sid)
     socketio.emit('update_mission_status', mission_status, room=request.sid)
     socketio.emit('video_stream_status', {'active': video_stream_active}, room=request.sid)
     
-    # DIUBAH: Logika memulai task disederhanakan
     if video_stream_active and video_task is None:
         video_task = socketio.start_background_task(target=stream_video)
     if pid_graph_task is None:
@@ -156,7 +153,6 @@ def handle_connect(auth=None): # DIUBAH: Menerima argumen opsional
 def handle_disconnect():
     log_activity(f"Pengguna terputus.", "warning")
 
-# ... (Event handler lain tidak berubah) ...
 @socketio.on('add_waypoint')
 def handle_add_waypoint(data):
     if not current_user.is_authenticated: return
@@ -190,8 +186,9 @@ def handle_delete_waypoint(index):
         db.session.rollback()
         socketio.emit('show_notification', {'message': 'Gagal menghapus waypoint.', 'type': 'error'}, room=request.sid)
 
+# DIUBAH: Tambahkan parameter 'data=None' untuk kompatibilitas
 @socketio.on('set_vehicle_mode')
-def handle_set_vehicle_mode():
+def handle_set_vehicle_mode(data=None):
     global vehicle_mode, mission_status
     vehicle_mode = "Auto" if vehicle_mode == "Manual" else "Manual"
     if vehicle_mode == "Manual":
@@ -203,7 +200,7 @@ def handle_set_vehicle_mode():
     log_activity(f"Mode diubah ke {vehicle_mode}.")
 
 @socketio.on('emergency_stop')
-def handle_emergency_stop():
+def handle_emergency_stop(data=None):
     global vehicle_mode, mission_status
     vehicle_mode = "Manual"
     mission_status = "Idle"
@@ -284,15 +281,14 @@ def handle_set_servo_limits(data):
         socketio.emit('show_notification', {'message': 'Gagal menyimpan batas servo.', 'type': 'error'}, room=request.sid)
 
 @socketio.on('take_snapshot')
-def handle_take_snapshot():
+def handle_take_snapshot(data=None):
     if not current_user.is_authenticated: return
     mqtt_client.publish(MQTT_COMMAND_TOPIC, json.dumps({"command": "take_snapshot"}))
     socketio.emit('show_notification', {'message': 'Perintah snapshot terkirim!', 'type': 'info'}, room=request.sid)
     log_activity("Perintah snapshot terkirim.")
 
 @socketio.on('toggle_video_stream')
-def handle_toggle_video_stream():
-    """Menghidupkan atau mematikan background task video stream."""
+def handle_toggle_video_stream(data=None):
     global video_stream_active, video_task
     if not current_user.is_authenticated: return
     
@@ -300,10 +296,8 @@ def handle_toggle_video_stream():
     
     if video_stream_active:
         log_activity("Perintah memulai video stream.")
-        # DIUBAH: Logika memulai task disederhanakan
         if video_task is None:
             video_task = socketio.start_background_task(target=stream_video)
             socketio.emit('video_stream_status', {'active': True})
     else:
         log_activity("Perintah menghentikan video stream.")
-        # Loop di dalam stream_video akan berhenti, dan task akan direset ke None

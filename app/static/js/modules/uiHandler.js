@@ -36,14 +36,21 @@ export function updateVehicleMode(newMode) {
   elements.vehicleModeDisplay.textContent = newMode;
   if (newMode === "Auto") {
     elements.modeSwitchBtn.textContent = "Beralih ke Mode Manual";
-    elements.vehicleModeDisplay.className =
-      "font-mono text-green-200 font-semibold px-2 py-1 bg-green-900/50 rounded-md";
+    // Menggunakan classList untuk menghindari penimpaan kelas
+    elements.vehicleModeDisplay.classList.remove(
+      "text-blue-800",
+      "bg-blue-100"
+    );
+    elements.vehicleModeDisplay.classList.add("text-green-800", "bg-green-100");
     elements.manualControlPanel.classList.add("hidden");
     elements.navigationControlPanel.classList.remove("hidden");
   } else {
     elements.modeSwitchBtn.textContent = "Beralih ke Mode Auto";
-    elements.vehicleModeDisplay.className =
-      "font-mono text-blue-200 font-semibold px-2 py-1 bg-blue-900/50 rounded-md";
+    elements.vehicleModeDisplay.classList.remove(
+      "text-green-800",
+      "bg-green-100"
+    );
+    elements.vehicleModeDisplay.classList.add("text-blue-800", "bg-blue-100");
     elements.manualControlPanel.classList.remove("hidden");
     elements.navigationControlPanel.classList.add("hidden");
   }
@@ -51,34 +58,60 @@ export function updateVehicleMode(newMode) {
 
 export function updateMissionStatus(newStatus) {
   elements.missionStatusDisplay.textContent = newStatus;
-  elements.missionStatusDisplay.className =
-    "font-mono font-semibold px-2 py-1 rounded-md ";
+  // Reset semua kelas warna terlebih dahulu
+  elements.missionStatusDisplay.classList.remove(
+    "bg-slate-200",
+    "text-slate-800",
+    "bg-green-100",
+    "text-green-800",
+    "bg-yellow-100",
+    "text-yellow-800"
+  );
+
   switch (newStatus) {
     case "Idle":
       elements.missionStartPauseBtn.textContent = "Mulai Misi";
-      elements.missionStartPauseBtn.className =
-        "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md text-sm";
+      elements.missionStartPauseBtn.classList.remove(
+        "bg-yellow-500",
+        "hover:bg-yellow-600"
+      );
+      elements.missionStartPauseBtn.classList.add(
+        "bg-green-600",
+        "hover:bg-green-700"
+      );
       elements.missionStatusDisplay.classList.add(
-        "bg-slate-600/50",
-        "text-slate-200"
+        "bg-slate-200",
+        "text-slate-800"
       );
       break;
     case "Running":
       elements.missionStartPauseBtn.textContent = "Jeda Misi";
-      elements.missionStartPauseBtn.className =
-        "w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md text-sm";
+      elements.missionStartPauseBtn.classList.remove(
+        "bg-green-600",
+        "hover:bg-green-700"
+      );
+      elements.missionStartPauseBtn.classList.add(
+        "bg-yellow-500",
+        "hover:bg-yellow-600"
+      );
       elements.missionStatusDisplay.classList.add(
-        "bg-green-900/50",
-        "text-green-200"
+        "bg-green-100",
+        "text-green-800"
       );
       break;
     case "Paused":
       elements.missionStartPauseBtn.textContent = "Lanjutkan Misi";
-      elements.missionStartPauseBtn.className =
-        "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md text-sm";
+      elements.missionStartPauseBtn.classList.remove(
+        "bg-yellow-500",
+        "hover:bg-yellow-600"
+      );
+      elements.missionStartPauseBtn.classList.add(
+        "bg-green-600",
+        "hover:bg-green-700"
+      );
       elements.missionStatusDisplay.classList.add(
-        "bg-yellow-900/50",
-        "text-yellow-200"
+        "bg-yellow-100",
+        "text-yellow-800"
       );
       break;
   }
@@ -110,12 +143,12 @@ export function updateVideoStreamStatus(status) {
 
 export function addLogEntry(log) {
   const li = document.createElement("li");
-  let colorClass = "text-slate-400";
-  if (log.level === "success") colorClass = "text-green-400";
-  if (log.level === "warning") colorClass = "text-yellow-400";
-  if (log.level === "error") colorClass = "text-red-400";
+  let colorClass = "text-slate-500";
+  if (log.level === "success") colorClass = "text-green-600";
+  if (log.level === "warning") colorClass = "text-yellow-600";
+  if (log.level === "error") colorClass = "text-red-600";
   li.className = colorClass;
-  li.innerHTML = `<span class="text-slate-500">${log.timestamp}</span> &gt; ${log.message}`;
+  li.innerHTML = `<span class="text-slate-400">${log.timestamp}</span> &gt; ${log.message}`;
   elements.activityLogList.appendChild(li);
   elements.activityLogList.parentElement.scrollTop =
     elements.activityLogList.parentElement.scrollHeight;
@@ -227,35 +260,31 @@ export function initEventListeners() {
     emitCommand("toggle_video_stream")
   );
 
-  function switchTab(activeTab, inactiveTab, contentToShow, contentToHide) {
-    activeTab.className =
-      "tab-btn px-3 py-2 font-medium text-sm rounded-md text-slate-900 bg-amber-400";
-    inactiveTab.className =
-      "tab-btn px-3 py-2 font-medium text-sm rounded-md text-slate-300 hover:bg-slate-700";
-    contentToShow.classList.remove("hidden");
-    contentToHide.classList.add("hidden");
-    elements.videoControls.classList.toggle(
-      "hidden",
-      activeTab.id !== "tab-video"
-    );
+  function switchTab(activeTab, inactiveTab) {
+    // Menggunakan classList untuk mengelola gaya tab
+    activeTab.classList.remove("text-slate-500", "hover:bg-blue-50");
+    activeTab.classList.add("text-white", "bg-blue-600");
+
+    inactiveTab.classList.remove("text-white", "bg-blue-600");
+    inactiveTab.classList.add("text-slate-500", "hover:bg-blue-50");
+
+    if (activeTab.id === "tab-map") {
+      elements.contentMap.classList.remove("hidden");
+      elements.contentVideo.classList.add("hidden");
+      elements.videoControls.classList.add("hidden");
+      window.dispatchEvent(new Event("resize")); // Penting untuk render peta
+    } else {
+      elements.contentMap.classList.add("hidden");
+      elements.contentVideo.classList.remove("hidden");
+      elements.videoControls.classList.remove("hidden");
+    }
   }
 
-  elements.tabMap.addEventListener("click", () => {
-    switchTab(
-      elements.tabMap,
-      elements.tabVideo,
-      elements.contentMap,
-      elements.contentVideo
-    );
-    window.dispatchEvent(new Event("resize"));
-  });
+  elements.tabMap.addEventListener("click", () =>
+    switchTab(elements.tabMap, elements.tabVideo)
+  );
   elements.tabVideo.addEventListener("click", () =>
-    switchTab(
-      elements.tabVideo,
-      elements.tabMap,
-      elements.contentVideo,
-      elements.contentMap
-    )
+    switchTab(elements.tabVideo, elements.tabMap)
   );
 
   console.log("UI event listeners initialized.");
